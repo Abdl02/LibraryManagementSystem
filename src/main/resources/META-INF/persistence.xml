@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+                                 https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd"
+             version="3.1">
+    <persistence-unit name="libraryPU" transaction-type="RESOURCE_LOCAL">
+        <class>com.library.management.model.User</class>
+        <class>com.library.management.model.Book</class>
+        <class>com.library.management.model.Transaction</class>
+
+        <properties>
+            <!-- H2 Database Configuration -->
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:~/librarydb" />
+            <property name="jakarta.persistence.jdbc.user" value="root" />
+            <property name="jakarta.persistence.jdbc.password" value="" />
+            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver" />
+
+            <!-- Hibernate Dialect -->
+            <property name="h   ibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+
+            <!-- Hibernate Settings -->
+            <property name="hibernate.hbm2ddl.auto" value="update" />
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="true" />
+        </properties>
+    </persistence-unit>
+</persistence>
