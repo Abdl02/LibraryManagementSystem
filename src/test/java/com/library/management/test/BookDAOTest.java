@@ -14,11 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BookDAOTest {
 
-    private GenericDAO<com.library.management.model.Book> bookDAO;  // Using GenericDAO<Book>
+    private GenericDAO<com.library.management.model.Book> bookDAO;
 
     @BeforeEach
     public void setup() {
-        bookDAO = new Book();  // Instantiate concrete class
+        bookDAO = new Book();
         try (Connection conn = DatabaseManager.getConnection();
              Statement stmt = conn.createStatement()) {
             String createTableQuery = "CREATE TABLE IF NOT EXISTS books (" +
@@ -27,11 +27,9 @@ public class BookDAOTest {
                     "author VARCHAR(100), " +
                     "available BOOLEAN)";
             stmt.execute(createTableQuery);
-
             stmt.execute("DELETE FROM books");
         } catch (Exception e) {
-            e.printStackTrace();
-            fail("Failed to set up test database");
+            fail("Failed to set up test database: " + e.getMessage());
         }
     }
 
@@ -41,10 +39,11 @@ public class BookDAOTest {
         bookDAO.add(book);
 
         List<com.library.management.model.Book> books = bookDAO.listAll();
+        assertFalse(books.isEmpty(), "Book list should not be empty after adding a book.");
         assertEquals(1, books.size());
 
         com.library.management.model.Book retrievedBook = books.get(0);
-        assertNotNull(retrievedBook);
+        assertNotNull(retrievedBook, "Retrieved book should not be null.");
         assertEquals("1984", retrievedBook.getTitle());
         assertEquals("George Orwell", retrievedBook.getAuthor());
         assertTrue(retrievedBook.isAvailable());
@@ -56,10 +55,10 @@ public class BookDAOTest {
         bookDAO.add(book);
 
         List<com.library.management.model.Book> books = bookDAO.listAll();
-        assertEquals(1, books.size());
+        assertFalse(books.isEmpty(), "Book list should not be empty after adding a book.");
 
         com.library.management.model.Book retrievedBook = bookDAO.getById(books.get(0).getId());
-        assertNotNull(retrievedBook);
+        assertNotNull(retrievedBook, "Retrieved book by ID should not be null.");
         assertEquals("Brave New World", retrievedBook.getTitle());
         assertEquals("Aldous Huxley", retrievedBook.getAuthor());
         assertFalse(retrievedBook.isAvailable());
@@ -71,7 +70,13 @@ public class BookDAOTest {
         bookDAO.add(new com.library.management.model.Book("To Kill a Mockingbird", "Harper Lee", false));
 
         List<com.library.management.model.Book> books = bookDAO.listAll();
-        assertEquals(2, books.size());
+        assertEquals(2, books.size(), "Book list size should match the number of books added.");
+    }
+
+    @Test
+    public void testEmptyBookList() {
+        List<com.library.management.model.Book> books = bookDAO.listAll();
+        assertTrue(books.isEmpty(), "Book list should be empty if no books are added.");
     }
 
     @AfterEach
@@ -84,3 +89,4 @@ public class BookDAOTest {
         }
     }
 }
+
