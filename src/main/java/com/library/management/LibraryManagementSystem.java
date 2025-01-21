@@ -10,7 +10,10 @@ import com.library.management.service.UserServiceImpl;
 import com.library.management.util.DatabaseManager;
 import com.library.management.dao.GenericDAO;
 
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.List;
 
 public class LibraryManagementSystem {
 
@@ -24,131 +27,184 @@ public class LibraryManagementSystem {
         LibraryService libraryService = new LibraryServiceImpl(userDAO, bookDAO, transactionDAO);
         UserService userService = new UserServiceImpl(userDAO);
 
-        System.out.println("Welcome to the Library Management System");
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+             PrintWriter writer = new PrintWriter(System.out, true)) {
 
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println("\nSelect an option:");
-            System.out.println("1. Register User");
-            System.out.println("2. Login User");
-            System.out.println("3. Add Book");
-            System.out.println("4. Remove Book");
-            System.out.println("5. Borrow Book");
-            System.out.println("6. Return Book");
-            System.out.println("7. List All Books");
-            System.out.println("8. Search Books");
-            System.out.println("9. List All Users");
-            System.out.println("0. Exit");
+            writer.println("Welcome to the Library Management System");
 
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            while (true) {
+                writer.println("\nSelect an option:");
+                writer.println("1. Register User");
+                writer.println("2. Login User");
+                writer.println("3. Add Book");
+                writer.println("4. Remove Book");
+                writer.println("5. Borrow Book");
+                writer.println("6. Return Book");
+                writer.println("7. List All Books");
+                writer.println("8. Search Books");
+                writer.println("9. List All Users");
+                writer.println("0. Exit");
 
-            switch (choice) {
-                case 1:
-                    System.out.print("Enter user name: ");
-                    String userName = scanner.nextLine();
-                    System.out.print("Enter user email: ");
-                    String userEmail = scanner.nextLine();
-                    try {
-                        userService.registerUser(new com.library.management.model.User(userName, userEmail));
-                        System.out.println("User registered successfully.");
-                    } catch (IllegalArgumentException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }
-                    break;
+                writer.print("Enter your choice: ");
+                writer.flush();
+                int choice;
 
-                case 2:
-                    System.out.print("Enter user email to login: ");
-                    String loginEmail = scanner.nextLine();
-                    try {
-                        com.library.management.model.User loggedInUser = userService.loginUser(loginEmail);
-                        System.out.println("Welcome, " + loggedInUser.getName() + "!");
-                    } catch (IllegalArgumentException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }
-                    break;
+                try {
+                    choice = Integer.parseInt(reader.readLine());
+                } catch (NumberFormatException e) {
+                    writer.println("Invalid input. Please enter a valid number.");
+                    continue;
+                }
 
-                case 3:
-                    System.out.print("Enter book title: ");
-                    String title = scanner.nextLine();
-                    System.out.print("Enter book author: ");
-                    String author = scanner.nextLine();
-                    libraryService.addBook(new com.library.management.model.Book(title, author, true));
-                    System.out.println("Book added successfully.");
-                    break;
+                switch (choice) {
+                    case 1:
+                        writer.print("Enter user name: ");
+                        writer.flush();
+                        String userName = reader.readLine();
+                        writer.print("Enter user email: ");
+                        writer.flush();
+                        String userEmail = reader.readLine();
+                        try {
+                            userService.registerUser(new com.library.management.model.User(userName, userEmail));
+                            writer.println("User registered successfully.");
+                        } catch (IllegalArgumentException e) {
+                            writer.println("Error: " + e.getMessage());
+                        }
+                        break;
 
-                case 4:
-                    System.out.print("Enter book ID to remove: ");
-                    int removeId = scanner.nextInt();
-                    try {
-                        libraryService.removeBook(removeId);
-                        System.out.println("Book removed successfully.");
-                    } catch (RuntimeException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }
-                    break;
+                    case 2:
+                        writer.print("Enter user email to login: ");
+                        writer.flush();
+                        String loginEmail = reader.readLine();
+                        try {
+                            com.library.management.model.User loggedInUser = userService.loginUser(loginEmail);
+                            writer.println("Welcome, " + loggedInUser.getName() + "!");
+                        } catch (IllegalArgumentException e) {
+                            writer.println("Error: " + e.getMessage());
+                        }
+                        break;
 
-                case 5:
-                    System.out.print("Enter user ID: ");
-                    int borrowUserId = scanner.nextInt();
-                    System.out.print("Enter book ID: ");
-                    int borrowBookId = scanner.nextInt();
-                    try {
-                        libraryService.borrowBook(borrowUserId, borrowBookId);
-                        System.out.println("Book borrowed successfully.");
-                    } catch (IllegalStateException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }
-                    break;
+                    case 3:
+                        writer.print("Enter book title: ");
+                        writer.flush();
+                        String title = reader.readLine();
+                        writer.print("Enter book author: ");
+                        writer.flush();
+                        String author = reader.readLine();
+                        libraryService.addBook(new com.library.management.model.Book(title, author, true));
+                        writer.println("Book added successfully.");
+                        break;
 
-                case 6:
-                    System.out.print("Enter user ID: ");
-                    int returnUserId = scanner.nextInt();
-                    System.out.print("Enter book ID: ");
-                    int returnBookId = scanner.nextInt();
-                    try {
-                        libraryService.returnBook(returnUserId, returnBookId);
-                        System.out.println("Book returned successfully.");
-                    } catch (IllegalStateException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }
-                    break;
+                    case 4:
+                        writer.print("Enter book ID to remove: ");
+                        writer.flush();
+                        int removeId;
+                        try {
+                            removeId = Integer.parseInt(reader.readLine());
+                        } catch (NumberFormatException e) {
+                            writer.println("Invalid book ID. Please try again.");
+                            break;
+                        }
+                        try {
+                            libraryService.removeBook(removeId);
+                            writer.println("Book removed successfully.");
+                        } catch (RuntimeException e) {
+                            writer.println("Error: " + e.getMessage());
+                        }
+                        break;
 
-                case 7:
-                    System.out.println("Listing all books:");
-                    libraryService.listAllBooks().forEach(book ->
-                            System.out.println("ID: " + book.getId() + ", Title: " + book.getTitle() +
-                                    ", Author: " + book.getAuthor() + ", Available: " + book.isAvailable()));
-                    break;
+                    case 5:
+                        writer.print("Enter user ID: ");
+                        writer.flush();
+                        int borrowUserId;
+                        int borrowBookId;
+                        try {
+                            borrowUserId = Integer.parseInt(reader.readLine());
+                            writer.print("Enter book ID: ");
+                            writer.flush();
+                            borrowBookId = Integer.parseInt(reader.readLine());
+                        } catch (NumberFormatException e) {
+                            writer.println("Invalid input. Please enter numeric IDs.");
+                            break;
+                        }
+                        try {
+                            libraryService.borrowBook(borrowUserId, borrowBookId);
+                            writer.println("Book borrowed successfully.");
+                        } catch (IllegalStateException e) {
+                            writer.println("Error: " + e.getMessage());
+                        }
+                        break;
 
-                case 8:
-                    System.out.print("Enter keyword to search: ");
-                    String keyword = scanner.nextLine().trim();
-                    if (keyword.isEmpty()) {
-                        System.out.println("Error: Search keyword cannot be empty.");
-                    } else {
-                        libraryService.searchBooks(keyword).forEach(book ->
-                                System.out.println("ID: " + book.getId() + ", Title: " + book.getTitle() +
-                                        ", Author: " + book.getAuthor() + ", Available: " + book.isAvailable()));
-                    }
-                    break;
+                    case 6:
+                        writer.print("Enter user ID: ");
+                        writer.flush();
+                        int returnUserId;
+                        int returnBookId;
+                        try {
+                            returnUserId = Integer.parseInt(reader.readLine());
+                            writer.print("Enter book ID: ");
+                            writer.flush();
+                            returnBookId = Integer.parseInt(reader.readLine());
+                        } catch (NumberFormatException e) {
+                            writer.println("Invalid input. Please enter numeric IDs.");
+                            break;
+                        }
+                        try {
+                            libraryService.returnBook(returnUserId, returnBookId);
+                            writer.println("Book returned successfully.");
+                        } catch (IllegalStateException e) {
+                            writer.println("Error: " + e.getMessage());
+                        }
+                        break;
 
-                case 9:
-                    System.out.println("Listing all users:");
-                    userService.listAllUsers().forEach(user ->
-                            System.out.println("ID: " + user.getId() + ", Name: " + user.getName() +
-                                    ", Email: " + user.getEmail()));
-                    break;
+                    case 7:
+                        List<com.library.management.model.Book> books = libraryService.listAllBooks();
+                        if (books.isEmpty()) {
+                            writer.println("No books available in the system.");
+                        } else {
+                            writer.println("Listing all books:");
+                            books.forEach(book ->
+                                    writer.println("ID: " + book.getId() + ", Title: " + book.getTitle() +
+                                            ", Author: " + book.getAuthor() + ", Available: " + book.isAvailable()));
+                        }
+                        break;
 
-                case 0:
-                    System.out.println("Exiting the system. Goodbye!");
-                    scanner.close();
-                    System.exit(0);
-                    break;
+                    case 8:
+                        writer.print("Enter keyword to search: ");
+                        writer.flush();
+                        String keyword = reader.readLine().trim();
+                        if (keyword.isEmpty()) {
+                            writer.println("Error: Search keyword cannot be empty.");
+                        } else {
+                            libraryService.searchBooks(keyword).forEach(book ->
+                                    writer.println("ID: " + book.getId() + ", Title: " + book.getTitle() +
+                                            ", Author: " + book.getAuthor() + ", Available: " + book.isAvailable()));
+                        }
+                        break;
 
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+                    case 9:
+                        List<com.library.management.model.User> users = userService.listAllUsers();
+                        if (users.isEmpty()) {
+                            writer.println("No users found in the system.");
+                        } else {
+                            writer.println("Listing all users:");
+                            users.forEach(user ->
+                                    writer.println("ID: " + user.getId() + ", Name: " + user.getName() +
+                                            ", Email: " + user.getEmail()));
+                        }
+                        break;
+
+                    case 0:
+                        writer.println("Exiting the system. Goodbye!");
+                        System.exit(0);
+                        break;
+
+                    default:
+                        writer.println("Invalid choice. Please try again.");
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
