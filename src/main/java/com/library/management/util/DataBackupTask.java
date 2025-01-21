@@ -26,6 +26,12 @@ public class DataBackupTask implements Runnable {
     private final GenericDAO<Book> bookDAO;
     private final GenericDAO<Transaction> transactionDAO;
 
+    /**
+     *
+     * @param userDAO
+     * @param bookDAO
+     * @param transactionDAO
+     */
     public DataBackupTask(GenericDAO<User> userDAO, GenericDAO<Book> bookDAO, GenericDAO<Transaction> transactionDAO) {
         this.userDAO = userDAO;
         this.bookDAO = bookDAO;
