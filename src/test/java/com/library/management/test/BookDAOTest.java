@@ -29,7 +29,7 @@ public class BookDAOTest {
             stmt.execute(createTableQuery);
             stmt.execute("DELETE FROM books");
         } catch (Exception e) {
-            fail("Failed to set up test database: " + e.getMessage())
+            fail("Failed to set up test database: " + e.getMessage());
         }
     }
 
