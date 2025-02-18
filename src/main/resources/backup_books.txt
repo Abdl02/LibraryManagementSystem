@@ -1,4 +1,2 @@
-com.library.management.model.Book@7a8723c1
-com.library.management.model.Book@2bfa9733
-com.library.management.model.Book@68a030a6
-com.library.management.model.Book@50fe32fd
+com.library.management.model.Book@10afd69f
+com.library.management.model.Book@7be94cd6
